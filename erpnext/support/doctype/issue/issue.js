@@ -1,3 +1,5 @@
+{% include "helpdesk/js/issue.js" %}
+
 frappe.ui.form.on("Issue", {
 	"onload": function(frm) {
 		frm.email_field = "raised_by";
