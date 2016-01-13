@@ -29,8 +29,8 @@ erpnext.crm.Opportunity = frappe.ui.form.Controller.extend({
 
 		if(!this.frm.doc.status)
 			set_multiple(cdt, cdn, { status:'Draft' });
-		if(!this.frm.doc.company && frappe.defaults.get_user_default("company"))
-			set_multiple(cdt, cdn, { company:frappe.defaults.get_user_default("company") });
+		if(!this.frm.doc.company && frappe.defaults.get_user_default("Company"))
+			set_multiple(cdt, cdn, { company:frappe.defaults.get_user_default("Company") });
 		if(!this.frm.doc.fiscal_year && sys_defaults.fiscal_year)
 			set_multiple(cdt, cdn, { fiscal_year:sys_defaults.fiscal_year });
 
@@ -90,12 +90,12 @@ cur_frm.cscript.refresh = function(doc, cdt, cdn) {
 	var frm = cur_frm;
 	if(frm.perm[0].write && doc.docstatus==0) {
 		if(frm.doc.status==="Open") {
-			frm.add_custom_button("Close", function() {
+			frm.add_custom_button(__("Close"), function() {
 				frm.set_value("status", "Closed");
 				frm.save();
 			});
 		} else {
-			frm.add_custom_button("Reopen", function() {
+			frm.add_custom_button(__("Reopen"), function() {
 				frm.set_value("status", "Open");
 				frm.save();
 			});

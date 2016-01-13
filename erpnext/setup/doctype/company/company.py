@@ -101,19 +101,6 @@ class Company(Document):
 		frappe.db.set(self, "default_payable_account", frappe.db.get_value("Account",
 			{"company": self.name, "account_type": "Payable"}))
 
-	def add_acc(self, lst):
-		account = frappe.get_doc({
-			"doctype": "Account",
-			"freeze_account": "No",
-			"company": self.name
-		})
-
-		for d in self.fld_dict.keys():
-			account.set(d, (d == 'parent_account' and lst[self.fld_dict[d]]) and lst[self.fld_dict[d]] +' - '+ self.abbr or lst[self.fld_dict[d]])
-		if not account.parent_account:
-			account.flags.ignore_mandatory = True
-		account.insert()
-
 	def set_default_accounts(self):
 		self._set_default_account("default_cash_account", "Cash")
 		self._set_default_account("default_bank_account", "Bank")
@@ -216,13 +203,15 @@ class Company(Document):
 			frappe.db.sql("""delete from `tabItem Reorder` where warehouse in (%s)"""
 				% ', '.join(['%s']*len(warehouses)), tuple(warehouses))
 
-		for f in ["income_account", "expense_account"]:
-			frappe.db.sql("""update tabItem set %s=NULL where %s in (%s)"""
-				% (f, f, ', '.join(['%s']*len(accounts))), tuple(accounts))
+		if accounts:
+			for f in ["income_account", "expense_account"]:
+				frappe.db.sql("""update tabItem set %s=NULL where %s in (%s)"""
+					% (f, f, ', '.join(['%s']*len(accounts))), tuple(accounts))
 
-		for f in ["selling_cost_center", "buying_cost_center"]:
-			frappe.db.sql("""update tabItem set %s=NULL where %s in (%s)"""
-				% (f, f, ', '.join(['%s']*len(cost_centers))), tuple(cost_centers))
+		if cost_centers:
+			for f in ["selling_cost_center", "buying_cost_center"]:
+				frappe.db.sql("""update tabItem set %s=NULL where %s in (%s)"""
+					% (f, f, ', '.join(['%s']*len(cost_centers))), tuple(cost_centers))
 
 		# reset default company
 		frappe.db.sql("""update `tabSingles` set value=""

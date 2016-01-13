@@ -105,6 +105,12 @@ class JournalEntry(AccountsController):
 					elif d.reference_type in ("Sales Order", "Purchase Order") and d.is_advance != "Yes":
 						frappe.throw(_("Row {0}: Payment against Sales/Purchase Order should always be marked as advance").format(d.idx))
 
+				if d.is_advance == "Yes":
+					if d.party_type == 'Customer' and flt(d.debit) > 0:
+						frappe.throw(_("Row {0}: Advance against Customer must be credit").format(d.idx))
+					elif d.party_type == 'Supplier' and flt(d.credit) > 0:
+						frappe.throw(_("Row {0}: Advance against Supplier must be debit").format(d.idx))
+
 	def validate_against_jv(self):
 		for d in self.get('accounts'):
 			if d.reference_type=="Journal Entry":
@@ -274,10 +280,14 @@ class JournalEntry(AccountsController):
 		alternate_currency = []
 		for d in self.get("accounts"):
 			account = frappe.db.get_value("Account", d.account, ["account_currency", "account_type"], as_dict=1)
-			d.account_currency = account.account_currency or self.company_currency
-			d.account_type = account.account_type
+			if account:
+				d.account_currency = account.account_currency
+				d.account_type = account.account_type
 
-			if d.account_currency!=self.company_currency and d.account_currency not in alternate_currency:
+			if not d.account_currency:
+				d.account_currency = self.company_currency
+
+			if d.account_currency != self.company_currency and d.account_currency not in alternate_currency:
 				alternate_currency.append(d.account_currency)
 
 		if alternate_currency:
