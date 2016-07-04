@@ -43,8 +43,8 @@ calendars = ["Task", "Production Order", "Time Log", "Leave Application", "Sales
 website_generators = ["Item Group", "Item", "Sales Partner"]
 
 website_context = {
-	"favicon": 	"/assets/erpnext/images/favicon.png",
-	"splash_image": "/assets/erpnext/images/splash.png"
+	"favicon": 	"/assets/erpnext/images/download.jpg",
+	"splash_image": "/assets/erpnext/images/download.jpg"
 }
 
 website_route_rules = [
